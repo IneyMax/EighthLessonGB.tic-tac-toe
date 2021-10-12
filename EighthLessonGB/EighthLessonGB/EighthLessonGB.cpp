@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "Game_Manager.h"
 
 int main()
@@ -12,12 +11,20 @@ int main()
     */
     
     Game_Manager main_gm;
-    if (main_gm.main_game())
+    switch (main_gm.main_game())
     {
-        std::cout << "You Win!";
+        case 0:
+            std::cout << "DRAW!!!";
+            break;
+        case 1:
+            std::cout << "YOU WIN!!!";
+            break;
+        case 2:
+            std::cout << "YOU LOSE!!!";
+            break;
+        default:
+            std::cout << "ERROR!!!!";
     }
-    else
-        std::cout << "You Lose!";
     return 0;
 }
 

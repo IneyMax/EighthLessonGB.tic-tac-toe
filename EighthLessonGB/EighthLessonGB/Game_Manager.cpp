@@ -3,12 +3,12 @@
 // Выбор длины линии для победы
 int Game_Manager::choose_win_line_lenght()
 {
-    int win_line {5};
+    int win_line {3};
     return win_line;
 }
 
 // Определение первого игрока
-bool Game_Manager::choose_first_player()
+TURN Game_Manager::choose_first_player()
 {
     /*
     std::cout << "Will you be the first player? (Yes/No)\n";
@@ -17,7 +17,7 @@ bool Game_Manager::choose_first_player()
     if (first_player == "Yes\n")
     {
         std::cout << "Ok\n";*/
-        return true;/*
+        return OPPONENT_TURN;/*
     }
     else
         return false;*/
@@ -62,34 +62,43 @@ int Game_Manager::choose_grid_size()
     return (line_lenght);
 }
 
-// Проверка условий завершения игры
-bool Game_Manager::check_end_game()
-{
-    return true;
-}
-
 //Основной игровой цикл
-bool Game_Manager::main_game()
+int Game_Manager::main_game()
 {
-    int turn {0};
+    main_grid_.print_grid();
+    main_grid_.print_grid_weight();
+    
+    TURN cur_turn {OPPONENT_TURN};
     do
     {
-        if (turn % 2 == 0)
+        switch (cur_turn)
         {
-            main_grid_.set_cur_turn(turn % 2);
-            main_grid_.add_sign(main_grid_.get_max_cell_index(), main_opponent_.get_sign());
+        case OPPONENT_TURN:
+            main_grid_.set_cur_turn(OPPONENT_TURN);
+            if (main_grid_.add_sign(main_grid_.get_max_cell_index(), main_opponent_.get_sign()))
+            {
+                return 2;
+            }
+            cur_turn = PLAYER_TURN;
+            break;
+            
+        case PLAYER_TURN:
+            main_grid_.set_cur_turn(PLAYER_TURN);
+            if (main_grid_.add_sign(main_player_.get_pos(), main_player_.get_sign()))
+            {
+                return 1;
+            }
+            cur_turn = OPPONENT_TURN;
+            break;
+            
+        default:
+            return 4;
         }
-        else
-        {
-            main_grid_.set_cur_turn(turn % 2);
-            main_grid_.add_sign(main_player_.get_pos(), main_player_.get_sign());
-        }
+        
         main_grid_.print_grid();
         main_grid_.print_grid_weight();
-        turn ++;
     }
     while (true);
-    return true;
 }
 
 

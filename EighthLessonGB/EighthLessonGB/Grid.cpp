@@ -2,7 +2,7 @@
 #include <iostream>
 
 // Инициализация сетки
-void grid::grid_init(cell *empty_array, int size)
+void grid::grid_init(cell *empty_array, const int size)
 {
     int index {0};
     while (index < size)
@@ -137,23 +137,51 @@ bool grid::add_sign(const int pos, const char sign)
     max_cell_.weight = 0;
     const int index {(pos - 1)};
     grid_array_[index].sign = sign;
-    change_weight(index, grid_array_[index]);
+    if (change_weight(index, grid_array_[index]))
+    {
+        return true;
+    }
     grid_array_[index].weight = 0;
     grid_array_[index].index = 0;
-    return true;
+    return false;
 }
 
 // Смена весов всех смежных ячеек
-void grid::change_weight(const int cur_pos, const cell cur_cell)
+bool grid::change_weight(const int cur_pos, const cell cur_cell)
 {
-    check_up(cur_pos, cur_cell);
-    check_down (cur_pos, cur_cell);
-    check_left(cur_pos, cur_cell);
-    check_right(cur_pos, cur_cell);
-    check_up_left(cur_pos, cur_cell);
-    check_up_right(cur_pos, cur_cell);
-    check_down_right(cur_pos, cur_cell);
-    check_down_left(cur_pos, cur_cell);
+    if (check_up(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_down (cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_left(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_right(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_up_left(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_up_right(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_down_right(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    if (check_down_left(cur_pos, cur_cell))
+    {
+        return true;
+    }
+    return false;
 }
 
 // Добавляем вес по индексу ячейки
@@ -161,7 +189,7 @@ void grid::add_weight(const int cur_pos, const int weight, const int index)
 {
     if (grid_array_[cur_pos].weight)
     {
-        if (index != win_line_ - 1) // TODO Проверка победного условия
+        if (index != win_line_ - 1)
         {
             if (index > 0)
             {
@@ -182,7 +210,7 @@ void grid::add_weight(const int cur_pos, const int weight, const int index)
 }
 
 // Проверка вверх
-void grid::check_up(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_up(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos - grid_line_;
     if (temple_pos >= 0)
@@ -198,10 +226,11 @@ void grid::check_up(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Проверка низ
-void grid::check_down(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_down(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos + grid_line_;
     if (temple_pos <= grid_size_)
@@ -217,10 +246,11 @@ void grid::check_down(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Прооверка влево
-void grid::check_left(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_left(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos - 1;
     if (temple_pos % grid_line_ != grid_line_ - 1)
@@ -236,10 +266,11 @@ void grid::check_left(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 //Проверка вправо
-void grid::check_right(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_right(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos + 1;
     if (temple_pos % grid_line_ != 0)
@@ -255,10 +286,11 @@ void grid::check_right(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Вверх лево
-void grid::check_up_left(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_up_left(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos - grid_line_ - 1;
     if ((temple_pos % grid_line_ != grid_line_ - 1) && (temple_pos >= 0))
@@ -274,10 +306,11 @@ void grid::check_up_left(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Вверх вправо
-void grid::check_up_right(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_up_right(const int cur_pos, const cell cur_cell, int index)
 { 
     const int temple_pos = cur_pos - grid_line_ + 1;
     if ((temple_pos >= 0) && (temple_pos % grid_line_ != 0))
@@ -293,10 +326,11 @@ void grid::check_up_right(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Вниз влево
-void grid::check_down_left(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_down_left(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos + grid_line_ - 1;
     if ((temple_pos % grid_line_ != grid_line_ - 1) && (temple_pos >= 0))
@@ -312,10 +346,11 @@ void grid::check_down_left(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Вниз вправо
-void grid::check_down_right(const int cur_pos, const cell cur_cell, int index)
+bool grid::check_down_right(const int cur_pos, const cell cur_cell, int index)
 {
     const int temple_pos = cur_pos + grid_line_ + 1;
     if ((temple_pos % grid_line_ != 0) && (temple_pos < grid_size_))
@@ -331,6 +366,7 @@ void grid::check_down_right(const int cur_pos, const cell cur_cell, int index)
         }
         else add_weight(temple_pos, cur_cell.weight, index);
     }
+    return false;
 }
 
 // Поиск клетки с макисмальным весом

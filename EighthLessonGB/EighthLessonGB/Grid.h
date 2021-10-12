@@ -21,18 +21,18 @@ private:
     
     void grid_init(cell *empty_array, int size);
     int calc_start_weight (int index) const;
-    void change_weight (int cur_pos, cell cur_cell);
+    bool change_weight (int cur_pos, cell cur_cell);
     void add_weight (int cur_pos, int weight, int index);
 
     // Для динамического изменения весов:
-    void check_up(int cur_pos, cell cur_cell, int index = 0);
-    void check_down(int cur_pos, cell cur_cell, int index = 0);
-    void check_left(int cur_pos, cell cur_cell, int index = 0);
-    void check_right(int cur_pos, cell cur_cell, int index = 0);
-    void check_up_left(int cur_pos, cell cur_cell, int index = 0);
-    void check_down_left(int cur_pos, cell cur_cell, int index = 0);
-    void check_up_right(int cur_pos, cell cur_cell, int index = 0);
-    void check_down_right(int cur_pos, cell cur_cell, int index = 0);
+    bool check_up(int cur_pos, cell cur_cell, int index = 0);
+    bool check_down(int cur_pos, cell cur_cell, int index = 0);
+    bool check_left(int cur_pos, cell cur_cell, int index = 0);
+    bool check_right(int cur_pos, cell cur_cell, int index = 0);
+    bool check_up_left(int cur_pos, cell cur_cell, int index = 0);
+    bool check_down_left(int cur_pos, cell cur_cell, int index = 0);
+    bool check_up_right(int cur_pos, cell cur_cell, int index = 0);
+    bool check_down_right(int cur_pos, cell cur_cell, int index = 0);
     
 
 public:
