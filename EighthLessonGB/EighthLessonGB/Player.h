@@ -10,6 +10,7 @@ public:
         : sign_(sign)
     {
     }
+
     char get_sign();
     int get_pos();
 };

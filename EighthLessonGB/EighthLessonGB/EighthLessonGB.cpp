@@ -3,12 +3,12 @@
 
 int main()
 {
-    /* Для вывода размеров классов
+    /* Для вывода размеров классов*/
     std::cout << "Game Manager: " << sizeof(Game_Manager) << "\n";
     std::cout << "Grid: "<< sizeof(grid) << "\n";
     std::cout << "Opponent: "<< sizeof(opponent) << "\n";
     std::cout << "Player: "<< sizeof(player) << "\n";
-    */
+    
     
     Game_Manager main_gm;
     switch (main_gm.main_game())
