@@ -1,14 +1,31 @@
-﻿#include "Game_Manager.h"
-
+﻿#include "game_manager.h"
 #include <iostream>
 
-// Выбор длины линии для победы
-int Game_Manager::choose_win_line_lenght()
+// Выбор размера игрового поля
+int game_manager::choose_grid_size()
 {
+    while (true)
+    {
+        std::cout << "Enter the size of the field (must be odd): \n";
+        int line_lenght {};
+        std::cin >> line_lenght;
+        if ((line_lenght > 2) && (line_lenght % 2 == 1) && (line_lenght < 30))
+        {
+            return line_lenght;
+        }
+        check_correct_input();
+    }
+}
+
+// Выбор длины линии для победы
+int game_manager::choose_win_line_lenght()
+{
+    // при игре 3*3 можно играть только три в ряд
     if (grid_line_ == 3)
     {
         return 3;
     }
+    
     while (true)
     {
         std::cout << "Enter the line length to win: \n";
@@ -22,28 +39,8 @@ int Game_Manager::choose_win_line_lenght()
     }
 }
 
-// Определение первого игрока
-e_turn Game_Manager::choose_first_player()
-{
-    while (true)
-    {
-        std::cout << "Will you be the first player? (Yes/No)\n";
-        std::string first_player;
-        std::cin >> first_player;
-        if ((first_player == "Yes") || (first_player == "yes"))
-        {
-            return player_turn;
-        }
-        if ((first_player == "No") || (first_player == "no"))
-        {
-            return opponent_turn;
-        }
-        check_correct_input();
-    }
-}
-
 // Выбор знаков для игрока
-char Game_Manager::choose_signs()
+char game_manager::choose_sign_player()
 {
     while (true)
     {
@@ -65,7 +62,7 @@ char Game_Manager::choose_signs()
 }
 
 // Выбор знаков для оппонента
-char Game_Manager::choose_signs_op(const char sign)
+char game_manager::choose_sign_opponent(const char sign)
 {
     if (sign == '*')
     {
@@ -74,78 +71,84 @@ char Game_Manager::choose_signs_op(const char sign)
     }
     else
         std::cout << "You opponent sign: '*'\n";
-        return '*';
+    return '*';
 }
 
-// Запрос размера игрового поля
-int Game_Manager::choose_grid_size()
+// Определение первого игрока
+bool game_manager::choose_first_player()
 {
     while (true)
     {
-        std::cout << "Enter the size of the field (must be odd): \n";
-        int line_lenght {};
-        std::cin >> line_lenght;
-        if ((line_lenght > 2) && (line_lenght % 2 == 1) && (line_lenght < 30))
+        std::cout << "Will you be the first player?\n";
+        std::string first_player;
+        std::cin >> first_player;
+        if (first_player == "Yes" || first_player == "yes" || first_player == "1")
         {
-            return (line_lenght);
+            std::cout << "Okay, you'll be the first player\n";
+            return true;
+        }
+        else if (first_player == "No" || first_player == "no" || first_player == "2")
+        {
+            std::cout << "Okay, you'll be the second player\n";
+            return false;
         }
         check_correct_input();
     }
 }
 
-//Основной игровой цикл
-int Game_Manager::main_game()
-{
-    main_grid_.print_grid();
-    //main_grid_.print_grid_weight();
-    
-    do
-    {
-        round_counter_ ++;
-        switch (cur_turn_)
-        {
-        case opponent_turn:
-            main_grid_.set_cur_player(opponent_turn);
-            if (main_grid_.add_sign(main_grid_.get_max_cell_index(), main_opponent_.get_sign()))
-            {
-                main_grid_.print_grid();
-                //main_grid_.print_grid_weight();
-                return 2;
-            }
-            cur_turn_ = player_turn;
-            break;
-            
-        case player_turn:
-            main_grid_.set_cur_player(player_turn);
-            if (main_grid_.add_sign(main_player_.get_pos(), main_player_.get_sign()))
-            {
-                main_grid_.print_grid();
-                //main_grid_.print_grid_weight();
-                return 1;
-            }
-            cur_turn_ = opponent_turn;
-            break;
-            
-        default:
-            return 3;
-        }
-        
-        main_grid_.print_grid();
-        //main_grid_.print_grid_weight();
-    }
-    while (round_counter_ <= ((grid_line_ * grid_line_) - 1));
-
-    return 0;
-}
-
-// Для корретного считывания ввода
-void Game_Manager::check_correct_input()
+void game_manager::check_correct_input()
 {
     if (std::cin.fail()) // если предыдущее извлечение не выполнилось или произошло переполнение,
         {
         std::cin.clear(); // то возвращаем cin в 'обычный' режим работы
         std::cin.ignore(32767,'\n'); // и удаляем значения предыдущего ввода из входного буфера
         }
+}
+
+int game_manager::get_grid_line() const
+{
+    return grid_line_;
+}
+
+int game_manager::get_grid_size()
+{
+    return grid_line_ * grid_line_;
+}
+
+int game_manager::get_win_line() const
+{
+    return win_line_;
+}
+
+char game_manager::get_player_sign() const
+{
+    return player_sign_;
+}
+
+char game_manager::get_opponent_sign() const
+{
+    return opponent_sign_;
+}
+
+bool game_manager::get_first_player() const
+{
+    return first_player_;
+}
+
+// Запрос ввода позиции у игрока
+int game_manager::get_player_choose()
+{
+    while (true)
+    {
+        int pos;
+        std::cin >> pos;
+        if ((pos >= 0) && (pos <= grid_line_ * grid_line_))
+        {
+            std::cout << "Player choose " << pos << "\n";
+            return pos;
+        }
+        check_correct_input();
+    }
 }
 
 

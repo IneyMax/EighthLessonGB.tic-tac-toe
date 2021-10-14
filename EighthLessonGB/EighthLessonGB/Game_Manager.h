@@ -1,44 +1,38 @@
 ﻿#pragma once
-#include "Grid.h"
-#include "Opponent.h"
-#include "Player.h"
-
-
-enum e_turn
-{
-    opponent_turn,
-    player_turn
-};
 
 #pragma pack(push, 1)
-class Game_Manager
+class game_manager
 {
 private:
     int grid_line_;
-    int round_counter_{};
-    grid main_grid_;
-    player main_player_;
-    opponent main_opponent_;
-    e_turn cur_turn_;
-
-    int choose_win_line_lenght ();
+    int win_line_;
+    char player_sign_;
+    char opponent_sign_;
+    bool first_player_;
+ 
     int choose_grid_size ();
-    e_turn choose_first_player ();
-    char choose_signs ();
-    char choose_signs_op (char sign);
+    int choose_win_line_lenght ();
+    char choose_sign_player ();
+    char choose_sign_opponent (char sign);
+    bool choose_first_player ();
     void check_correct_input();
 
 public:
-    Game_Manager()
-        :
-        grid_line_(choose_grid_size()),
-        main_grid_(grid_line_, choose_win_line_lenght()),
-        main_player_(choose_signs()),
-        main_opponent_(choose_signs_op(main_player_.get_sign())),
-        cur_turn_(choose_first_player())
+    game_manager()
+     : grid_line_(choose_grid_size ()),
+       win_line_(choose_win_line_lenght ()),
+       player_sign_(choose_sign_player ()),
+       opponent_sign_(choose_sign_opponent (player_sign_)),
+       first_player_(choose_first_player ())
     {
     }
 
-    int main_game();
+    int get_grid_line() const;
+    int get_grid_size ();
+    int get_win_line() const;
+    char get_player_sign() const;
+    char get_opponent_sign() const;
+    bool get_first_player() const;
+    int get_player_choose();
 };
 #pragma pack(pop)

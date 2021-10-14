@@ -21,18 +21,18 @@ int main()
     {
         switch (cur_player)
         {
-        case true:
-            {//TODO Повысить вес ходов игрока и подобрать значения весов для полей
-                main_grid.add_sign(main_game_manager.get_player_choose(), main_game_manager.get_player_sign());
-                cur_player = false;
-                break;
-            }
-        case false:
-            {
-                main_grid.add_sign(main_grid.get_max_index(), main_game_manager.get_opponent_sign());
-                cur_player = true;
-                break;
-            }
+            case true:
+                {//TODO Повысить вес ходов игрока и подобрать значения весов для полей
+                    main_grid.add_sign(main_game_manager.get_player_choose(), main_game_manager.get_player_sign());
+                    cur_player = false;
+                    break;
+                }
+            case false:
+                {
+                    main_grid.add_sign(main_grid.get_max_index(), main_game_manager.get_opponent_sign());
+                    cur_player = true;
+                    break;
+                }
         }
         
         main_grid.print_grid();
