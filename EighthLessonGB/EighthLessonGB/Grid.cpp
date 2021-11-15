@@ -9,16 +9,17 @@ void grid::grid_init(cell* empty_array, const int size)
     int index {0};
     while (index < size)
     {
-        empty_array[index] = {index, '+', calc_start_weight(index)}; // Заполняем индексами
+        empty_array[index] = {index, calc_start_weight(index), '+'}; // Заполняем индексами
         index ++;
     }
 }
 
 // Расчёт весов для ячейки
-int grid::calc_start_weight(const int index) const
+int grid::calc_start_weight(const int index)
 {
-    int temple_weight {0};
-
+    //int temple_weight {0};
+    
+    /*
     // Вертикали
     if ((index % grid_line_ >= 0) && (index % grid_line_ < grid_line_))
     {
@@ -54,9 +55,9 @@ int grid::calc_start_weight(const int index) const
     if (index % grid_line_  == (grid_size_- index - 1 ) / grid_line_)
     {
         temple_weight += 4;
-    }
+    }*/
     
-    return temple_weight;
+    return calculate_potencial_cell(index, grid_array_[index]);
 }
 
 // Отрисовка сетки
@@ -154,7 +155,7 @@ void grid::check_neighbours(const cell cur_cell)
     {
         for (const auto h_element : hor_array)
         {
-            if (v_element == 0 && h_element == 0) // Пропускаем 0,0 для предотвращения рекурсии
+            if (v_element == h_element) // Пропускаем 0,0 для предотвращения рекурсии
             {
                 continue;
             }
@@ -169,33 +170,81 @@ void grid::check_cell(const int cur_cell_index, const cell cur_cell, const int m
     const int temple_position = cur_cell_index + move_hor + move_vert;
     if (0 <= temple_position && temple_position < grid_size_) // Чтобы всё происходило в рамках поля
     {
-        if (grid_array_[temple_position].sign == cur_cell.sign)
+        // Все ограничения при расстановке весов. TODO: преобразовать и сократить условие
+        if (((move_hor > 0) && (temple_position % grid_line_ != 0)) || ((move_hor < 0) && (temple_position % grid_line_ != grid_line_ - 1)) || (!move_hor))
+        {
+            if (grid_array_[temple_position].sign == cur_cell.sign) // Если знак совпал
             {
-            layer_index ++;
-            check_win_condition(layer_index);
-            if (layer_index == 1)
+                layer_index ++;
+                check_win_condition(layer_index);
+                if (layer_index == 1)
+                {
+                    check_cell( cur_cell_index, cur_cell, (-move_hor), (-move_vert), layer_index);
+                }
+                check_cell( temple_position, cur_cell, move_hor, move_vert, layer_index);
+            }
+            else if (grid_array_[temple_position].weight) // Если ячейка свободна
             {
-                check_cell( cur_cell_index, cur_cell, (-move_hor), (-move_vert), layer_index);
+                calculate_potencial_cell(temple_position, cur_cell);
+                add_weight(temple_position, cur_cell.weight, layer_index);
             }
-            check_cell( temple_position, cur_cell, move_hor, move_vert, layer_index);
-            }
-        else
-            add_weight(temple_position, cur_cell.weight, layer_index);
+        }
     }
 }
 
-// Добавление веса в ячейку
+int grid::calculate_potencial_cell(int cur_cell_index, cell cur_cell)
+{
+    int hor_line = 1 + potencial_line(cur_cell_index, cur_cell, 1, 0) + potencial_line(cur_cell_index, cur_cell, -1, 0);
+    if (hor_line < win_line_)
+    {
+        hor_line = 0;
+    }
+    //std::cout << "Cell: " << cur_cell_index << " horiz line: " << hor_line << std::endl;
+    int vert_line = 1 + potencial_line(cur_cell_index, cur_cell, 0, grid_line_) + potencial_line(cur_cell_index, cur_cell, 0, -grid_line_);
+    if (vert_line < win_line_)
+    {
+        vert_line = 0;
+    }
+    //std::cout << "Cell: " << cur_cell_index << " vert_line: " << vert_line << std::endl;
+    int diag_line_1 = 1 + potencial_line(cur_cell_index, cur_cell, 1, grid_line_) + potencial_line(cur_cell_index, cur_cell, -1, -grid_line_);
+    if (diag_line_1 < win_line_)
+    {
+        diag_line_1 = 0;
+    }
+    //std::cout << "Cell: " << cur_cell_index << " diag_line_1: " << diag_line_1 << std::endl;
+    int diag_line_2 = 1 + potencial_line(cur_cell_index, cur_cell,  1, -grid_line_) + potencial_line(cur_cell_index, cur_cell, -1, grid_line_);
+    if (diag_line_2 < win_line_)
+    {
+        diag_line_2 = 0;
+    }
+    //std::cout << "Cell: " << cur_cell_index << " diag_line_2: " << diag_line_2 << std::endl;
+    return hor_line + vert_line + diag_line_1 + diag_line_2;
+}
+
+// Возможные линии.
+int grid::potencial_line(const int cur_cell_index, const cell cur_cell, const int move_hor, const int move_vert)
+{
+    const int temple_position = cur_cell_index + move_hor + move_vert; // ячейка на шаг впереди
+    if (0 <= temple_position && temple_position < grid_size_) // в рамках поля
+        if (((move_hor > 0) && (temple_position % grid_line_ != 0)) || ((move_hor < 0) && (temple_position % grid_line_ != grid_line_ - 1)) || (!move_hor)) // логика поля
+        {
+            if (grid_array_[temple_position].sign == cur_cell.sign || grid_array_[temple_position].weight) // если знак совпадает и ячейка свободна
+            {
+                return 1 + potencial_line (temple_position, cur_cell, move_hor, move_vert);
+            }
+        }
+    return 0;
+}
+
+// Добавление веса в ячейку // TODO: сделать более умное изменение веса
 void grid::add_weight(const int cur_pos, const int weight, const int layer_index)
 {
-    if (grid_array_[cur_pos].weight)
+    if (layer_index > 0)
     {
-        if (layer_index > 0)
-        {
-            grid_array_[cur_pos].weight += weight;
-        }
-        else
-            grid_array_[cur_pos].weight += 1;
+        grid_array_[cur_pos].weight += weight;
     }
+    else
+        grid_array_[cur_pos].weight += 1;
 }
 
 

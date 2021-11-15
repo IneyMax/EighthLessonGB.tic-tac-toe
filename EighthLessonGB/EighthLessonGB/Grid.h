@@ -34,9 +34,11 @@ public:
 
 private:
     void grid_init(cell *empty_array, int size);
-    int calc_start_weight (int index) const;
+    int calc_start_weight (int index);
     void check_neighbours (cell cur_cell);
     void check_cell(int cur_cell_index, cell cur_cell, int move_hor = 0, int move_vert = 0, int layer_index = 0);
+    int calculate_potencial_cell (int cur_cell_index, cell cur_cell);
+    int potencial_line (int cur_cell_index, cell cur_cell, int move_hor, int move_vert);
     void add_weight (int cur_pos, int weight, int layer_index);
     void check_win_condition (int layer);
 
