@@ -9,9 +9,7 @@ void grid::grid_init(cell* empty_array, const int size)
     int index {0};
     while (index < size)
     {
-        empty_array[index].index = index; // Заполняем индексами
-        empty_array[index].sign = '+'; // Заполняем символами по умолчанию
-        empty_array[index].weight = calc_start_weight(index); // Расчитываем вес ячеек
+        empty_array[index] = {index, '+', calc_start_weight(index)}; // Заполняем индексами
         index ++;
     }
 }
@@ -160,62 +158,29 @@ void grid::check_neighbours(const cell cur_cell)
             {
                 continue;
             }
-            check_cell(cur_cell.index, cur_cell.weight, cur_cell.sign, h_element,v_element);
+            check_cell(cur_cell.index, cur_cell, h_element,v_element);
         }
     }
 }
 
 // Алгоритм движения по сетке (Рекурсивный)
-void grid::check_cell(const int cur_cell_index, const int weight, const char sign, const int move_hor, const int move_vert, int layer_index)
+void grid::check_cell(const int cur_cell_index, const cell cur_cell, const int move_hor, const int move_vert, int layer_index)
 {
     const int temple_position = cur_cell_index + move_hor + move_vert;
     if (0 <= temple_position && temple_position < grid_size_) // Чтобы всё происходило в рамках поля
     {
-            if ((move_hor > 0) && (temple_position % grid_line_ != 0)) // Если двигаемся вправо
+        if (grid_array_[temple_position].sign == cur_cell.sign)
             {
-                if (grid_array_[temple_position].sign == sign)
-                {
-                    layer_index ++;
-                    check_win_condition(layer_index);
-                    if (layer_index == 1)
-                    {
-                        check_cell( cur_cell_index, weight, sign, (-move_hor), (-move_vert), layer_index);
-                    }
-                    check_cell( temple_position, weight, sign, move_hor, move_vert, layer_index);
-                }
-                else
-                    add_weight(temple_position, weight,layer_index);
-            }
-            else if ((move_hor < 0) && (temple_position % grid_line_ != grid_line_ - 1)) // Если двигаемся влево
+            layer_index ++;
+            check_win_condition(layer_index);
+            if (layer_index == 1)
             {
-                if (grid_array_[temple_position].sign == sign)
-                {
-                    layer_index ++;
-                    check_win_condition(layer_index);
-                    if (layer_index == 1)
-                    {
-                        check_cell( cur_cell_index, weight, sign, (-move_hor), (-move_vert), layer_index);
-                    }
-                    check_cell( temple_position, weight, sign, move_hor, move_vert, layer_index);
-                }
-                else
-                    add_weight(temple_position, weight,layer_index);
+                check_cell( cur_cell_index, cur_cell, (-move_hor), (-move_vert), layer_index);
             }
-            else if (!move_hor) // Если не двигаемся по горизонтали
-            {
-                if (grid_array_[temple_position].sign == sign)
-                {
-                    layer_index ++;
-                    check_win_condition(layer_index);
-                    if (layer_index == 1)
-                    {
-                        check_cell( cur_cell_index, weight, sign, (-move_hor), (-move_vert), layer_index);
-                    }
-                    check_cell( temple_position, weight, sign, move_hor, move_vert, layer_index);
-                }
-                else
-                    add_weight(temple_position, weight,layer_index);
+            check_cell( temple_position, cur_cell, move_hor, move_vert, layer_index);
             }
+        else
+            add_weight(temple_position, cur_cell.weight, layer_index);
     }
 }
 

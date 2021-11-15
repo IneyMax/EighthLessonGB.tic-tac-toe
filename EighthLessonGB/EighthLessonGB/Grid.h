@@ -1,12 +1,13 @@
 ﻿#pragma once
 
-
+#pragma pack(push, 1)
 struct cell
 {
     int index;
-    char sign;
     int weight;
+    char sign;
 };
+#pragma pack(pop)
 
 
 #pragma pack(push, 1)
@@ -35,7 +36,7 @@ private:
     void grid_init(cell *empty_array, int size);
     int calc_start_weight (int index) const;
     void check_neighbours (cell cur_cell);
-    void check_cell(int cur_cell_index, int weight, char sign, int move_hor = 0, int move_vert = 0, int layer_index = 0);
+    void check_cell(int cur_cell_index, cell cur_cell, int move_hor = 0, int move_vert = 0, int layer_index = 0);
     void add_weight (int cur_pos, int weight, int layer_index);
     void check_win_condition (int layer);
 

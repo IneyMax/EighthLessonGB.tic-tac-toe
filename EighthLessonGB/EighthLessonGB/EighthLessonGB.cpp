@@ -36,7 +36,7 @@ int main()
         }
         
         main_grid.print_grid();
-        // main_grid.print_grid_weight(); Для отслеживания весов
+        main_grid.print_grid_weight(); //Для отслеживания весов
         turn ++;
         
         if (main_grid.get_win_condition())
