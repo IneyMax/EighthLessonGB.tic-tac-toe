@@ -39,14 +39,14 @@ private:
     void check_cell(int cur_cell_index, cell cur_cell, int move_hor = 0, int move_vert = 0, int layer_index = 0);
     int calculate_potencial_cell (int cur_cell_index, cell cur_cell);
     int potencial_line (int cur_cell_index, cell cur_cell, int move_hor, int move_vert);
-    void add_weight (int cur_pos, int weight, int layer_index);
+    void add_weight (int temple_position, cell cur_cell, int layer_index);
     void check_win_condition (int layer);
 
 public:
     void print_grid() const;
     void print_grid_weight() const;
-    void add_sign(int cell_index, char sign);
-    int get_max_index () const;
+    void add_sign(int cell_index, char sign, bool player);
+    int get_max_index ();
     bool get_win_condition() const;
 
     ~grid()

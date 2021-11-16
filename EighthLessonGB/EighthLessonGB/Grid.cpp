@@ -9,17 +9,16 @@ void grid::grid_init(cell* empty_array, const int size)
     int index {0};
     while (index < size)
     {
-        empty_array[index] = {index, calc_start_weight(index), '+'}; // Заполняем индексами
+        empty_array[index] = {index, (calculate_potencial_cell(index, grid_array_[index]) - 4), '+'}; // Заполняем индексами
         index ++;
     }
 }
 
-// Расчёт весов для ячейки
+// Расчёт весов для ячейки - Устаревшая функция, не используется
 int grid::calc_start_weight(const int index)
 {
-    //int temple_weight {0};
+    int temple_weight {0};
     
-    /*
     // Вертикали
     if ((index % grid_line_ >= 0) && (index % grid_line_ < grid_line_))
     {
@@ -55,9 +54,9 @@ int grid::calc_start_weight(const int index)
     if (index % grid_line_  == (grid_size_- index - 1 ) / grid_line_)
     {
         temple_weight += 4;
-    }*/
+    }
     
-    return calculate_potencial_cell(index, grid_array_[index]);
+    return temple_weight;
 }
 
 // Отрисовка сетки
@@ -67,7 +66,7 @@ void grid::print_grid() const
     while (index < grid_size_)
     {
         std::cout << "|";
-        if (grid_array_[index].index < 10 || grid_array_[index].weight < 1) // Добавление пробела для выравнивания сетки
+        if (grid_array_[index].index < 100 || grid_array_[index].weight < 1) // Добавление пробела для выравнивания сетки
             {
             std::cout << " ";
             }
@@ -80,6 +79,10 @@ void grid::print_grid() const
         {
             std::cout << grid_array_[index].sign;
         }
+        if (grid_array_[index].index < 10 || grid_array_[index].weight < 1) // Добавление пробела для выравнивания сетки
+            {
+            std::cout << " ";
+            }
         index ++;
         
         if (index % grid_line_ == 0) // Перенос строки в конце линии
@@ -115,28 +118,34 @@ void grid::print_grid_weight() const
 }
 
 // Добавления символа в сетку
-void grid::add_sign(const int cell_index, const char sign)
+void grid::add_sign(const int cell_index, const char sign, bool player)
 {
     grid_array_[cell_index].sign = sign;
+    if (player)
+    {
+        grid_array_[cell_index].weight += grid_line_; // для повышения веса у смежных ячеек
+    }
     check_neighbours(grid_array_[cell_index]);
     grid_array_[cell_index].weight = 0;
 }
 
 // Получаем индекс клетки с наибольшим весом
-int grid::get_max_index() const
+int grid::get_max_index()
 {
     int cell_index {0};
     int max_weight {0};
     int max_weight_index {0};
-    while (cell_index < grid_size_)
+    while (cell_index < grid_size_) // для каждой ячейки
     {
-        if (max_weight < grid_array_[cell_index].weight)
+        int new_potencial_cell {grid_array_[cell_index].weight + (calculate_potencial_cell(cell_index, grid_array_[cell_index]) % grid_line_)};
+        if (max_weight < new_potencial_cell)
         {
-            max_weight = grid_array_[cell_index].weight;
+            max_weight = new_potencial_cell;
             max_weight_index = cell_index;
         }
         cell_index++;
     }
+    std::cout << "Opponent choose " << max_weight_index << "\n";
     return max_weight_index;
 }
 
@@ -185,13 +194,13 @@ void grid::check_cell(const int cur_cell_index, const cell cur_cell, const int m
             }
             else if (grid_array_[temple_position].weight) // Если ячейка свободна
             {
-                calculate_potencial_cell(temple_position, cur_cell);
-                add_weight(temple_position, cur_cell.weight, layer_index);
+                add_weight(temple_position, cur_cell, layer_index);
             }
         }
     }
 }
 
+// Расчёт потенциала клетки
 int grid::calculate_potencial_cell(int cur_cell_index, cell cur_cell)
 {
     int hor_line = 1 + potencial_line(cur_cell_index, cur_cell, 1, 0) + potencial_line(cur_cell_index, cur_cell, -1, 0);
@@ -236,18 +245,26 @@ int grid::potencial_line(const int cur_cell_index, const cell cur_cell, const in
     return 0;
 }
 
-// Добавление веса в ячейку // TODO: сделать более умное изменение веса
-void grid::add_weight(const int cur_pos, const int weight, const int layer_index)
+// Добавление веса в ячейку
+void grid::add_weight(const int temple_position, const cell cur_cell, const int layer_index)
 {
-    if (layer_index > 0)
+    int temple_extra_weight = calculate_potencial_cell(temple_position, cur_cell);
+    if (layer_index > 0) // если не смежная ячейка - вес сильно повышается
     {
-        grid_array_[cur_pos].weight += weight;
+        if (temple_extra_weight) // При условии что у клетки есть потенциал
+        {
+            grid_array_[temple_position].weight += cur_cell.weight;
+        }
+        else
+        {
+            grid_array_[temple_position].weight = 1;
+        }
     }
     else
-        grid_array_[cur_pos].weight += 1;
+        grid_array_[temple_position].weight += (temple_extra_weight + cur_cell.weight) % win_line_;
 }
 
-
+// Проверка победного условия
 void grid::check_win_condition(const int layer)
 {
     if (layer >= win_line_ - 1)
@@ -255,4 +272,6 @@ void grid::check_win_condition(const int layer)
         win_condition_ = true;
     }
 }
+
+
 
